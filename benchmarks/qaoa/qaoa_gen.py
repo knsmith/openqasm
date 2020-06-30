@@ -27,17 +27,23 @@ if sys.version_info < (3, 5):
     raise Exception("Please use Python 3.5 or later")
 
 
-def print_qasm(circ_qasm, outname=None):
+def print_qasm(circ_qasm,comments=[], outname=None):
     """
         print qasm string with comments
     """
     if outname is None:
+        for item in comments:
+            print("//" + item)
         print(circ_qasm)
     else:
         if not outname.endswith(".qasm"):
             outfilename = outname + ".qasm"
         
         outfile = open(outfilename, "w")
+        
+        for item in comments:
+            outfile.write("//" + item)
+            outfile.write("\n")
         outfile.write(circ_qasm)
         outfile.close()
 
@@ -64,6 +70,7 @@ def create_ring(n):
     d = 1.0
     for i in range(0,n):
         E.append((i,(i+1)%n,d))
+
     return V, E
 
 def create_imbalance(n,n_dense):
@@ -91,7 +98,7 @@ def create_random_graph(n,p):
     """
     G = nx.gnp_random_graph(n,p)
     V = G.nodes
-    E = G.edges
+    E = G.edges.data('weight', default=1.0)
     
     return V, E
 
@@ -110,16 +117,22 @@ def qaoa_circ_from_graph(V, E, G, gamma, beta):
     
     return QAOA
 
-def main(n_qubits, beta, gamma, type, prob, out_name):
+def main(n_qubits, beta, gamma, t_type, prob, out_name):
 
-    if type == "ring":
+    comments = ["QAOA with " + str(n_qubits) + " qubits",
+                "beta: " + str(beta),
+                "gamma: " + str(gamma),
+                "topology: " + str(t_type)]
+    
+    if t_type == "ring":
         V, E = create_ring(n_qubits)
 
-    elif type == "mesh":
+    elif t_type == "mesh":
         V, E = create_mesh(n_qubits)
 
-    elif type == "random":
+    elif t_type == "random":
         V, E = create_random_graph(n_qubits, prob)
+        comments.append("prob. of graph edge: " +str(prob))
 
     else:
         raise Exception("Invalid type selected.")
@@ -132,9 +145,10 @@ def main(n_qubits, beta, gamma, type, prob, out_name):
     QAOA = qaoa_circ_from_graph( V, E, G, gamma, beta)
 
     if out_name is None:
-        out_name = "qaoa_n" + str(nQubits)
+        out_name = "qaoa_n" + str(n_qubits) + "_" + str(t_type)
 
-    print_qasm(QAOA.qasm(), out_name)
+
+    print_qasm(QAOA.qasm(), comments, out_name)
 
     
 
@@ -150,11 +164,11 @@ if __name__ == "__main__":
                         help="beta value for QAOA")
     parser.add_argument("-g", "--gamma", default=0.5,
                         help="gamma value for QAOA")
-    parser.add_argument("-t", "--type", default="ring",
+    parser.add_argument("-t", "--t_type", default="ring",
                         help="graph topology either ring, mesh, or random")
     parser.add_argument("-p", "--prob", default=0.0,
                         help="probability of edge between node on random graph")
     parser.add_argument("-o", "--output", default=None, type=str,
                         help="output filename")
     args = parser.parse_args()
-    main(args.qubits, float(args.beta), float(args.gamma), args.type, float(args.prob), args.output)
+    main(args.qubits, float(args.beta), float(args.gamma), args.t_type, float(args.prob), args.output)
