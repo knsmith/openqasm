@@ -1,11 +1,8 @@
 """
 To generate a Bernstein-Vazirani algorithm using 5 qubits, type the following.
-
 python bv_gen.py -q 5 -o bv5
 The resulting circuit is stored at bv5.qasm and its drawing at bv5.tex.
-
 For more details, run the above command with -h or --help argument.
-
 @author Raymond Harry Rudy rudyhar@jp.ibm.com
 """
 import sys
