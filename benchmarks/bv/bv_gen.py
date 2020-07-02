@@ -4,12 +4,12 @@ python bv_gen.py -q 5 -o bv5
 The resulting circuit is stored at bv5.qasm.
 For more details, run the above command with -h or --help argument.
 @author Raymond Harry Rudy rudyhar@jp.ibm.com
+updated by Kate Smith kns@uchicago.edu
 """
 import sys
 import numpy as np
 import argparse
 import random
-#from qiskit import QuantumProgram
 from qiskit import QuantumCircuit
 
 if sys.version_info < (3, 5):

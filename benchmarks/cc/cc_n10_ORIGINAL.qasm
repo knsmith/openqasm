@@ -1,3 +1,4 @@
+//@author Raymond Harry Rudy rudyhar@jp.ibm.com
 //Counterfeit coin finding with 9 coins.
 //The false coin is 6
 OPENQASM 2.0;
